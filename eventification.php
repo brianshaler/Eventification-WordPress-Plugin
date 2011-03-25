@@ -238,7 +238,7 @@ class eventification {
         
         $url = $event["url"] != "" ? $event["url"] : "http://eventification.com/" . $event["event_url"];
         
-        $content = str_replace("{eventification:".$event["event_id"]."}", "<p>" . $event["description"] . "</p><p>" . $event["venue_info"] . "</p><p>More info: <a href=\"".$url."\">".$url."</a></p><p><a href=\"http://eventification.com/tag/view/".$event["tags"][0]["tag_code"]."\" title=\"".$event["tags"][0]["tag_text"]." events in ".$event["city"]."\">Discover more ".$event["tags"][0]["tag_text"]." events in ".$event["city"]." using Eventification!</a></p>", $content);
+        $content = str_replace("{eventification:".$event["event_id"]."}", "<p>" . $event["description"] . "</p><p>" . $event["venue_info"] . "</p><p><a href=\"".$url."\">Event home page</a> / <a href=\"http://eventification.com".$event["event_url"]."\">Eventification page</a></p><p><a href=\"http://eventification.com/tag/view/".$event["tags"][0]["tag_code"]."\" title=\"".$event["tags"][0]["tag_text"]." events in ".$event["city"]."\">Discover more ".$event["tags"][0]["tag_text"]." events in ".$event["city"]." using Eventification!</a></p>", $content);
       }
     }
     
