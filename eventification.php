@@ -22,7 +22,6 @@ class eventification {
     if (function_exists('add_options_page'))
       add_options_page('Eventification', 'Eventification', 9, __FILE__, array('eventification', 'show_options'));
     
-    self::setup_dir();
     self::$api_string = get_option("eventification_api", self::$api_string);
     self::$post_type = get_option("eventification_post_type", self::$post_type);
     self::$upcoming_page = get_option("eventification_upcoming_page", self::$upcoming_page);
@@ -101,8 +100,6 @@ class eventification {
     if (!self::$init)
       self::init();
     
-    $cache_dir = self::$cache_dir;
-    $prefix = self::$prefix;
     $update_frequency = self::$update_frequency;
     $api_string = self::$api_string;
     $post_type = self::$post_type;
@@ -252,27 +249,6 @@ class eventification {
     $str = preg_replace("/\-\-/g","-",$str);
     
     return $str;
-  }
-  
-  function setup_dir() {
-    $cache_dir = self::$cache_dir;
-  	$parent_dir = dirname($cache_dir);
-  	if (!file_exists($cache_dir)) {
-  		if (!is_writable($parent_dir) || !(@mkdir($cache_dir, 0777))) {
-				// Error: cache dir not writable
-				return false;
-  		}
-  	}
-  	if (!is_writable($cache_dir)) {
-  		// Error: wp-content not writable
-  		return false;
-  	}
-    
-  	if ($cache_dir{strlen($cache_dir)-1} != "/") {
-  		$cache_dir .= "/";
-  	}
-  	self::$cache_dir = $cache_dir;
-  	return true;
   }
   
   function check_cron() {
