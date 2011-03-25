@@ -22,6 +22,8 @@ class eventification {
     if (function_exists('add_options_page'))
       add_options_page('Eventification', 'Eventification', 9, __FILE__, array('eventification', 'show_options'));
     
+    ini_set("date.timezone", "America/Phoenix");
+    
     self::$api_string = get_option("eventification_api", self::$api_string);
     self::$post_type = get_option("eventification_post_type", self::$post_type);
     self::$upcoming_page = get_option("eventification_upcoming_page", self::$upcoming_page);
