@@ -1,6 +1,6 @@
 **Eventification WordPress Plugin**
 
-Eventification provides a simple but powerful API for retrieving events from the system. Head on over to [http://eventification.com/api](the API documentation page) to brush up on how to put together a request and what to expect in return.
+Eventification provides a simple but powerful API for retrieving events from the system. Head on over to [the API documentation page](http://eventification.com/api) to brush up on how to put together a request and what to expect in return.
 
 This plugin relies on the JSON format option, and can retrieve past and future events around any topic, geographic area, or venue. If you organize a regular meetup group, you can easily pull in all upcoming events for your group. If you run a venue that hosts events, this plugin will happy create posts/pages for each of your upcoming events.
 
@@ -16,6 +16,6 @@ Here's how it works:
 
 * You get to focus traffic & SEO on your own site
 
-Again, refer to the [http://eventification.com/api](API documentation) to figure out how to build your URL.
+Again, refer to the [API documentation](http://eventification.com/api) to figure out how to build your URL.
 
 If you have any questions or comments, track down Brian Shaler. Please be mindful that this plugin is just a baby, and it's going to take some time for it to grow up!
