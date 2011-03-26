@@ -12,7 +12,7 @@ class eventification {
   
   public static $update_frequency = 3600;
   public static $api_string = "";
-  public static $post_type = "page";
+  public static $post_type = "eventification_event";
   public static $upcoming_page = 0;
   public static $upcoming_events = "";
   
@@ -25,12 +25,16 @@ class eventification {
     ini_set("date.timezone", "America/Phoenix");
     
     self::$api_string = get_option("eventification_api", self::$api_string);
-    self::$post_type = get_option("eventification_post_type", self::$post_type);
+    //self::$post_type = get_option("eventification_post_type", self::$post_type);
     self::$upcoming_page = get_option("eventification_upcoming_page", self::$upcoming_page);
     self::$upcoming_events = get_option("eventification_upcoming_events", self::$upcoming_events);
     //self::$ = get_option("eventification_");
     //self::$ = get_option("eventification_");
     self::$init = true;
+  }
+  
+  function event_post_type() {
+  	register_post_type('eventification_event', array('labels'=>array('name'=>__('Events'),'singular_name'=>__('Event')), 'public' => false, 'show_ui'=>true, 'has_archive' => false, 'rewrite' => array('slug' => 'events')));
   }
   
   function show_options() {
@@ -43,8 +47,8 @@ class eventification {
   
   function process_form() {
     $api_string = $_POST["api_string"];
-    $post_type = strtolower($_POST["post_type"]);
-    if ($post_type != "post" && $post_type != "page") { $post_type = "post"; }
+    //$post_type = strtolower($_POST["post_type"]);
+    //if ($post_type != "post" && $post_type != "page") { $post_type = "post"; }
     $upcoming_page = $_POST["upcoming_page"];
     
     if ($api_string != get_option("eventification_api"))
@@ -52,7 +56,7 @@ class eventification {
       update_option('eventification_last_request', 0);
       update_option('eventification_api', $api_string);
     }
-    update_option('eventification_post_type', $post_type);
+    //update_option('eventification_post_type', $post_type);
     update_option('eventification_upcoming_page', $upcoming_page);
     
     self::init();
@@ -63,7 +67,7 @@ class eventification {
     <form name="settingsform" method="post" action="<?php echo get_option('siteurl') . '/wp-admin/options-general.php?page=eventification/eventification.php' ?>">
       <input type="hidden" name="action" value="update_settings"/>
       <p>
-      <input type="text" name="api_string" value="<?php echo self::$api_string ?>" />
+      <input type="text" name="api_string" style="width: 500px;" value="<?php echo self::$api_string ?>" />
       </p>
       
       <p>
@@ -82,7 +86,7 @@ class eventification {
         ?>
         </select>
       </p>
-      <p>
+      <p style="display: none;">
         When a new event is detected, create a new:<br />
         <input type="radio" name="post_type" id="post_type_post" value="post"<?php if (self::$post_type=="post") { echo " checked=\"true\""; } ?> /> <label for="post_type_post">Post</label>
         <input type="radio" name="post_type" id="post_type_page" value="page"<?php if (self::$post_type=="page") { echo " checked=\"true\""; } ?> /> <label for="post_type_page">Page</label>
@@ -129,11 +133,13 @@ class eventification {
           //$title = self::make_event_url($event["name"].date("m-d-y", $event["starttime"]));
           $title = "Event: " . $event["name"] . " in " . $event["city"] . ", " . $event["state"] . " - " . date('l F j, Y g:ia', $event["starttime"]);
           
+          /*
           if ($post_type == "page") {
             $post = get_page_by_title($title);
           } else {
             $post = get_post_by_title($title);
-          }
+          }/**/
+          $post = get_event_by_title($title);
 
           if (!$post) {
             
@@ -146,11 +152,7 @@ class eventification {
             $_p['post_title'] = $title;
             $_p['post_content'] = "{eventification:".$event["event_id"]."}";
             $_p['post_status'] = 'publish';
-            if ($post_type == "page") {
-              $_p['post_type'] = 'page';
-            } else {
-              $_p['post_type'] = 'post';
-            }
+            $_p['post_type'] = $post_type;
             $_p['post_category'] = array(1); // the default 'Uncategorised'
             $_p['tags_input'] = implode(", ", $tags);
             
@@ -196,11 +198,7 @@ class eventification {
       
       $title = "Event: " . $event["name"] . " in " . $event["city"] . ", " . $event["state"] . " - " . date('l F j, Y g:ia', $event["starttime"]);
       
-      if (self::$post_type == "page") {
-        $p = get_page_by_title($title);
-      } else {
-        $p = get_post_by_title($title);
-      }
+      $p = get_event_by_title($title);
       
       $event_str .= "<p>";
       $event_str .= "<strong style=\"font-size: 120%;\"><a href=\"".$p->guid."\">" . $event["name"] . "</a></strong><br />";
@@ -260,9 +258,11 @@ class eventification {
   }
 }
 
+add_action('init', array('eventification', 'event_post_type'));
 add_action('wp', array('eventification', 'check_cron'));
 add_action('admin_menu', array('eventification', 'init'));
 add_action('eventification_cron', array('eventification', 'get_events'));
+
 
 add_filter('the_content', array('eventification', 'eventify_post'));
 add_filter('the_content', array('eventification', 'show_upcoming'));
@@ -273,21 +273,20 @@ function update_eventification() {
 }
 
 /**
- * Retrieve a page given its title.
+ * Retrieve an event given its title.
  *
- * @since 2.1.0
  * @uses $wpdb
  *
- * @param string $page_title Page title
+ * @param string $event_title Event title
  * @param string $output Optional. Output type. OBJECT, ARRAY_N, or ARRAY_A.
  * @return mixed
  */
-if (!function_exists("get_post_by_title")) {
-function get_post_by_title($post_title, $output = OBJECT) {
+if (!function_exists("get_event_by_title")) {
+function get_event_by_title($event_title, $output = OBJECT) {
 	global $wpdb;
-	$post = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_title = %s AND post_type='post'", $post_title ));
-	if ( $post )
-		return get_post($post, $output);
+	$event = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_title = %s AND post_type='eventification_event'", $event_title ));
+	if ( $event )
+		return get_post($event, $output);
 
 	return null;
 }
