@@ -111,7 +111,8 @@ class eventification {
         <p>
           API Call: <a class="evnt_small" href="http://eventification.com/api">(API documentation)</a><br />
           <input type="text" name="api_string" style="width: 500px;" value="<?php echo self::$api_string ?>" /><br />
-          <em class="evnt_small">Include everything <strong>after</strong> http://eventification.com/api/</em>
+          <em class="evnt_small">Include everything <strong>after</strong> http://eventification.com/api/</em><br />
+          <em class="evnt_small">Examples: get/events/?tag=technology or get/events/?venue_name=My%20Venue</em>
         </p>
       
         <p>
@@ -264,7 +265,7 @@ class eventification {
       if ($matches[1] == "{short_description}" && !isset($obj["short_description"]) && isset($obj["description"])) {
         $desc = $obj["description"];
         $short = strip_tags($desc);
-        if (strlen($desc) > 155 && strpos($desc, " ", 150) > 0)
+        if (strlen($short) > 155 && strpos($short, " ", 150) > 0)
         {
           $short = substr($short, 0, strpos($short, " ", 150)) . " ...";
         }
