@@ -20,7 +20,7 @@ class eventification {
   public static $upcoming_events = "";
   
   // Default templates
-  public static $event_template = "<p>{description}</p><p>{venue_info}</p><p><a href=\"{url}\">Event home page</a> / <a href=\"http://eventification.com{event_url}\">Eventification page</a></p><p><a href=\"http://eventification.com/tag/view/{tags:0:tag_code}\" title=\"{tags:0:tag_text} events in {city}\">Discover more {tags:0:tag_text} events in {city} using Eventification!</a></p>";
+  public static $event_template = "{description}<p>{venue_info}</p><p><a href=\"{url}\">Event home page</a> / <a href=\"http://eventification.com{event_url}\">Eventification page</a></p><p><a href=\"http://eventification.com/tag/view/{tags:0:tag_code}\" title=\"{tags:0:tag_text} events in {city}\">Discover more {tags:0:tag_text} events in {city} using Eventification!</a></p>";
   public static $short_event_template = "<p><strong style=\"font-size: 120%;\"><a href=\"{local_url}\">{name}</a></strong><br />{starttime:date:l F j, Y g:ia}<br />{short_description}</p>";
   public static $title_template = "{name} in {city}, {state} - {starttime:date:l, F j, Y g:ia}";
   public static $slug_template = "{name}-{city}-{state}-{starttime:date:F-j-Y}";
@@ -114,7 +114,7 @@ class eventification {
           <em class="evnt_small">Include everything <strong>after</strong> http://eventification.com/api/</em><br />
           <em class="evnt_small">Examples: get/events/?tag=technology or get/events/?venue_name=My%20Venue</em>
         </p>
-      
+        
         <p>
           Event Template: <em class="evnt_small">(see below for details)</em><br />
           <textarea rows="8" style="width: 500px;" name="event_template"><?php echo htmlentities(stripcslashes(self::$event_template)); ?></textarea>
@@ -312,13 +312,18 @@ class eventification {
    */
   function shortcode ($attr) {
     
+    if (!self::$init)
+      self::init();
+    
     if (intval($attr["event_id"]) > 0) {
       $custom = get_post_custom();
       if (!isset($custom["eventification"])) { return 'error'; }
     
       $event_str = $custom["eventification"][0];
       $event = json_decode($custom["eventification"][0], true);
-    
+      if (!isset($event["name"])) { $event = json_decode(stripcslashes($custom["eventification"][0]), true); }
+      
+      if (isset($event[0])) { $event = $event[0]; }
       return self::parse_template(self::$event_template, $event);
     } else
     if ($attr["events"] == "upcoming") {
