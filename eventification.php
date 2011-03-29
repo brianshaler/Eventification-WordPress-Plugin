@@ -367,5 +367,5 @@ if (!function_exists("get_event_by_title")) {
   }
 }
 
-
+// Testing github pull request
 ?>
